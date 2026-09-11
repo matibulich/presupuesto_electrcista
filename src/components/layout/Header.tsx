@@ -1,12 +1,12 @@
 export default function Header() {
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-white/20 bg-white/40 backdrop-blur-xl px-4 md:px-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div>
         <p className="text-sm text-muted-foreground">
           Gestión
         </p>
 
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-lg font-bold text-slate-800 tracking-tight">
           Dashboard
         </h2>
       </div>
@@ -14,7 +14,7 @@ export default function Header() {
       <div className="flex items-center gap-3">
         <button
           type="button"
-          className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted md:hidden"
+          className="cursor-pointer rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted md:hidden"
         >
           ☰
         </button>

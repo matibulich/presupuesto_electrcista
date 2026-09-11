@@ -2,10 +2,31 @@ import Link from "next/link";
 
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import { Badge } from "@/components/ui/badge";
 
-export default function Home() {
+import DeleteButton from "./ordenes/DeleteButton";
+
+import { prisma } from "@/lib/prisma";
+
+export default async function Home() {
+  const [orders, counts] = await Promise.all([
+    prisma.workOrder.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { customer: true },
+      take: 4,
+    }),
+    prisma.$transaction([
+      prisma.workOrder.count({ where: { status: "PENDING" } }),
+      prisma.workOrder.count({ where: { status: "IN_PROGRESS" } }),
+      prisma.workOrder.count({ where: { status: "COMPLETED" } }),
+      prisma.workOrder.count(),
+    ]),
+  ]);
+
+  const [pending, inProgress, completed, total] = counts;
+
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-violet-50/30">
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -16,18 +37,18 @@ export default function Home() {
             {/* Encabezado */}
             <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                <h1 className="text-2xl font-bold tracking-tight md:text-3xl text-slate-800">
                   Buenos días 👋
                 </h1>
 
-                <p className="mt-1 text-muted-foreground">
+                <p className="mt-1 text-slate-500">
                   Acá tenés el resumen de tus órdenes de trabajo.
                 </p>
               </div>
 
               <Link
-                href="/ordenes/nueva"
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                href="/ordenes/nuevas"
+                className="inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(79,70,229,0.25)] transition-all hover:shadow-[0_6px_24px_rgba(79,70,229,0.35)] hover:-translate-y-0.5"
               >
                 + Nueva orden
               </Link>
@@ -35,84 +56,49 @@ export default function Home() {
 
             {/* Métricas */}
             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard
-                title="Pendientes"
-                value="4"
-                description="Esperando atención"
-              />
-
-              <StatCard
-                title="En proceso"
-                value="2"
-                description="Actualmente trabajando"
-              />
-
-              <StatCard
-                title="Finalizadas"
-                value="18"
-                description="Trabajos completados"
-              />
-
-              <StatCard
-                title="Total"
-                value="24"
-                description="Órdenes registradas"
-              />
+              <MetricCard label="Pendientes" value={pending} desc="Esperando atención" />
+              <MetricCard label="En proceso" value={inProgress} desc="Actualmente trabajando" />
+              <MetricCard label="Finalizadas" value={completed} desc="Trabajos completados" />
+              <MetricCard label="Total" value={total} desc="Órdenes registradas" />
             </section>
 
             {/* Órdenes recientes */}
-            <section className="rounded-xl border bg-white shadow-sm">
-              <div className="flex items-center justify-between border-b p-5">
+            <section className="rounded-3xl border border-white/20 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-xl shadow-[0_8px_30px_rgba(30,41,59,0.06)] overflow-hidden transition-shadow hover:shadow-[0_14px_40px_rgba(30,41,59,0.1)]">
+              <div className="flex items-center justify-between border-b border-white/20 p-5">
                 <div>
-                  <h2 className="font-semibold">
+                  <h2 className="font-bold text-slate-800 text-base">
                     Órdenes recientes
                   </h2>
-
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-slate-400">
                     Últimos trabajos registrados
                   </p>
                 </div>
 
                 <Link
                   href="/ordenes"
-                  className="text-sm font-medium text-primary hover:underline"
+                  className="text-sm cursor-pointer font-semibold text-indigo-600 hover:text-violet-700 hover:underline transition-colors"
                 >
                   Ver todas
                 </Link>
               </div>
 
-              <div className="divide-y">
-                <OrderRow
-                  number="00124"
-                  customer="Juan Pérez"
-                  work="Instalación eléctrica"
-                  status="En proceso"
-                  statusClass="bg-blue-100 text-blue-700"
-                />
-
-                <OrderRow
-                  number="00123"
-                  customer="Carlos López"
-                  work="Reparación"
-                  status="Finalizada"
-                  statusClass="bg-green-100 text-green-700"
-                />
-
-                <OrderRow
-                  number="00122"
-                  customer="Pedro Gómez"
-                  work="Mantenimiento"
-                  status="Pendiente"
-                  statusClass="bg-yellow-100 text-yellow-700"
-                />
-
-                <OrderRow
-                  number="00121"
-                  customer="Martín Díaz"
-                  work="Instalación"
-                  status="Finalizada"
-                  statusClass="bg-green-100 text-green-700"
-                />
+              <div className="divide-y divide-white/10">
+                {orders.length === 0 ? (
+                  <div className="p-8 text-center text-sm text-slate-400">
+                    No hay órdenes registradas aún.
+                  </div>
+                ) : (
+                  orders.map((o) => (
+                    <OrderRow
+                      key={o.id}
+                      id={o.id}
+                      number={o.number.toString().padStart(5, "0")}
+                      customer={o.customer.name}
+                      work={o.type}
+                      status={o.status}
+                    />
+                  ))
+                )}
               </div>
             </section>
           </div>
@@ -122,73 +108,71 @@ export default function Home() {
   );
 }
 
-function StatCard({
-  title,
+function MetricCard({
+  label,
   value,
-  description,
+  desc,
 }: {
-  title: string;
-  value: string;
-  description: string;
+  label: string;
+  value: number;
+  desc: string;
 }) {
   return (
-    <div className="rounded-xl border bg-white p-5 shadow-sm">
-      <p className="text-sm font-medium text-muted-foreground">
-        {title}
+    <div className="rounded-2xl bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgba(30,41,59,0.06)] p-5 transition-all hover:shadow-[0_14px_40px_rgba(30,41,59,0.1)] hover:-translate-y-0.5">
+      <p className="text-xs font-extrabold uppercase tracking-[0.15em] text-slate-400">
+        {label}
       </p>
-
-      <p className="mt-2 text-3xl font-bold tracking-tight">
-        {value}
-      </p>
-
-      <p className="mt-1 text-xs text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-1 text-4xl font-black tracking-tight text-slate-900">{value}</p>
+      <p className="mt-1 text-xs font-medium text-slate-400">{desc}</p>
     </div>
   );
 }
 
+function getStatusBadge(status: string) {
+  switch (status) {
+    case "COMPLETED":
+      return <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200 font-semibold text-[10px] uppercase tracking-wide">Finalizada</Badge>;
+    case "IN_PROGRESS":
+      return <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200 font-semibold text-[10px] uppercase tracking-wide">En proceso</Badge>;
+    case "CANCELLED":
+      return <Badge className="bg-rose-50 text-rose-700 hover:bg-rose-50 border-rose-200 font-semibold text-[10px] uppercase tracking-wide">Cancelada</Badge>;
+    default:
+      return <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-50 border-amber-200 font-semibold text-[10px] uppercase tracking-wide">Pendiente</Badge>;
+  }
+}
+
 function OrderRow({
+  id,
   number,
   customer,
   work,
   status,
-  statusClass,
 }: {
+  id: string;
   number: string;
   customer: string;
   work: string;
   status: string;
-  statusClass: string;
 }) {
   return (
-    <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between hover:bg-slate-50/40 transition-colors">
       <div className="flex items-center gap-4">
-        <div className="hidden h-10 w-10 items-center justify-center rounded-lg bg-muted text-sm font-semibold sm:flex">
+        <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-100 to-violet-100 text-sm font-black text-indigo-700 shadow-sm sm:flex shadow-indigo-100/50">
           #{number.slice(-2)}
         </div>
 
         <div>
-          <p className="font-medium">
-            {customer}
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            {work}
-          </p>
+          <p className="font-bold text-slate-800">{customer}</p>
+          <p className="text-sm text-slate-400 font-medium">{work}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 sm:justify-end">
-        <span className="text-sm text-muted-foreground">
-          #{number}
-        </span>
-
-        <span
-          className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusClass}`}
-        >
-          {status}
-        </span>
+        <span className="text-xs font-mono font-semibold text-slate-300 tracking-wide">#{number}</span>
+        <div className="flex items-center gap-2">
+          {getStatusBadge(status)}
+          <DeleteButton id={id} />
+        </div>
       </div>
     </div>
   );

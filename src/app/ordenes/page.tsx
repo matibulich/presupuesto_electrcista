@@ -3,7 +3,9 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import DeleteButton from "./DeleteButton";
 import {
   Card,
   CardContent,
@@ -12,48 +14,32 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-const orders = [
-  {
-    id: "00124",
-    customer: "Juan Pérez",
-    phone: "351 1234567",
-    work: "Instalación eléctrica",
-    priority: "Normal",
-    status: "En proceso",
-    date: "25/08/2026",
-  },
-  {
-    id: "00123",
-    customer: "Carlos López",
-    phone: "351 7654321",
-    work: "Reparación de tablero",
-    priority: "Urgente",
-    status: "Pendiente",
-    date: "24/08/2026",
-  },
-  {
-    id: "00122",
-    customer: "Pedro Gómez",
-    phone: "351 4567890",
-    work: "Mantenimiento",
-    priority: "Normal",
-    status: "Finalizada",
-    date: "23/08/2026",
-  },
-  {
-    id: "00121",
-    customer: "Martín Díaz",
-    phone: "351 9876543",
-    work: "Instalación de luminarias",
-    priority: "Normal",
-    status: "Finalizada",
-    date: "22/08/2026",
-  },
-];
+import { prisma } from "@/lib/prisma";
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  const orders = await prisma.workOrder.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      customer: true,
+    },
+  });
+
+  const pendingCount = orders.filter(
+    (order) => order.status === "PENDING"
+  ).length;
+
+  const inProgressCount = orders.filter(
+    (order) => order.status === "IN_PROGRESS"
+  ).length;
+
+  const completedCount = orders.filter(
+    (order) => order.status === "COMPLETED"
+  ).length;
+
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-violet-50/30">
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -61,7 +47,8 @@ export default function OrdersPage() {
 
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl space-y-6">
-            {/* Encabezado */}
+
+            {/* ENCABEZADO */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">
@@ -81,25 +68,23 @@ export default function OrdersPage() {
               </Link>
             </div>
 
-            {/* Resumen */}
+            {/* RESUMEN */}
             <div className="grid gap-4 sm:grid-cols-3">
-              <SummaryCard
-                title="Pendientes"
-                value="4"
-              />
-
-              <SummaryCard
-                title="En proceso"
-                value="2"
-              />
-
-              <SummaryCard
-                title="Finalizadas"
-                value="18"
-              />
+              <div className="rounded-2xl bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgba(30,41,59,0.06)] p-5 transition-shadow hover:shadow-[0_14px_40px_rgba(30,41,59,0.1)]">
+                <p className="text-sm font-semibold text-slate-400 tracking-wide">Pendientes</p>
+                <p className="mt-2 text-3xl font-extrabold text-slate-800">{pendingCount}</p>
+              </div>
+              <div className="rounded-2xl bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgba(30,41,59,0.06)] p-5 transition-shadow hover:shadow-[0_14px_40px_rgba(30,41,59,0.1)]">
+                <p className="text-sm font-semibold text-slate-400 tracking-wide">En proceso</p>
+                <p className="mt-2 text-3xl font-extrabold text-slate-800">{inProgressCount}</p>
+              </div>
+              <div className="rounded-2xl bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgba(30,41,59,0.06)] p-5 transition-shadow hover:shadow-[0_14px_40px_rgba(30,41,59,0.1)]">
+                <p className="text-sm font-semibold text-slate-400 tracking-wide">Finalizadas</p>
+                <p className="mt-2 text-3xl font-extrabold text-slate-800">{completedCount}</p>
+              </div>
             </div>
 
-            {/* Listado */}
+            {/* LISTADO */}
             <Card>
               <CardHeader>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -157,26 +142,28 @@ export default function OrdersPage() {
                       {orders.map((order) => (
                         <tr
                           key={order.id}
-                          className="border-b last:border-0 hover:bg-muted/30"
+                          className={`border-b last:border-0 hover:bg-muted/30 cursor-pointer`}
                         >
                           <td className="px-6 py-4 font-medium">
-                            #{order.id}
+                            #{order.number
+                              .toString()
+                              .padStart(5, "0")}
                           </td>
 
                           <td className="px-6 py-4">
                             <div>
                               <p className="font-medium">
-                                {order.customer}
+                                {order.customer.name}
                               </p>
 
                               <p className="text-xs text-muted-foreground">
-                                {order.phone}
+                                {order.customer.phone}
                               </p>
                             </div>
                           </td>
 
                           <td className="px-6 py-4">
-                            {order.work}
+                            {order.type}
                           </td>
 
                           <td className="px-6 py-4">
@@ -192,21 +179,36 @@ export default function OrdersPage() {
                           </td>
 
                           <td className="px-6 py-4 text-muted-foreground">
-                            {order.date}
+                            {formatDate(order.createdAt)}
                           </td>
 
                           <td className="px-6 py-4 text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                            >
-                              <Link href={`/ordenes/${order.id}`}>
+                            <div className="flex items-center justify-end gap-2">
+                              <Link
+                                href={`/ordenes/${order.id}`}
+                                className={buttonVariants({
+                                  variant: "ghost",
+                                  size: "sm",
+                                })}
+                              >
                                 Ver
                               </Link>
-                            </Button>
+                              <DeleteButton id={order.id} />
+                            </div>
                           </td>
                         </tr>
                       ))}
+
+                      {orders.length === 0 && (
+                        <tr>
+                          <td
+                            colSpan={7}
+                            className="px-6 py-10 text-center text-muted-foreground"
+                          >
+                            No hay órdenes de trabajo todavía.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -219,34 +221,12 @@ export default function OrdersPage() {
   );
 }
 
-function SummaryCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-5">
-        <p className="text-sm text-muted-foreground">
-          {title}
-        </p>
-
-        <p className="mt-2 text-3xl font-bold">
-          {value}
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
 function StatusBadge({
   status,
 }: {
   status: string;
 }) {
-  if (status === "Finalizada") {
+  if (status === "COMPLETED") {
     return (
       <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
         Finalizada
@@ -254,10 +234,18 @@ function StatusBadge({
     );
   }
 
-  if (status === "En proceso") {
+  if (status === "IN_PROGRESS") {
     return (
       <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
         En proceso
+      </Badge>
+    );
+  }
+
+  if (status === "CANCELLED") {
+    return (
+      <Badge variant="destructive">
+        Cancelada
       </Badge>
     );
   }
@@ -274,7 +262,7 @@ function PriorityBadge({
 }: {
   priority: string;
 }) {
-  if (priority === "Urgente") {
+  if (priority === "URGENT") {
     return (
       <Badge variant="destructive">
         Urgente
@@ -287,4 +275,12 @@ function PriorityBadge({
       Normal
     </Badge>
   );
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 }
