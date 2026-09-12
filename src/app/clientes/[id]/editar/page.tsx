@@ -6,6 +6,8 @@ import CustomerForm from "@/components/orders/CustomerForm";
 
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type EditCustomerPageProps = {
   params: Promise<{
     id: string;
