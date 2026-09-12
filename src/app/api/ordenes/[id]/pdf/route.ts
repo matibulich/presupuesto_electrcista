@@ -3,6 +3,8 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createElement } from "react";
 import WorkOrderPDF from "@/components/pdf/WorkOrderPdf";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   request: Request,
   context: {
