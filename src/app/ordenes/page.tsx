@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
 
 export default async function OrdersPage() {
   const orders = await prisma.workOrder.findMany({
