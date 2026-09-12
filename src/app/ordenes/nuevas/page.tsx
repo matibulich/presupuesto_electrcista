@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import WorkOrderForm from "@/components/orders/WorkOrdersForm";
+export const dynamic = "force-dynamic";
 
 export default function NewOrderPage() {
   return (
