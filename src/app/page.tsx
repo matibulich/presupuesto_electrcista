@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import DeleteButton from "./ordenes/DeleteButton";
 
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [orders, counts] = await Promise.all([
