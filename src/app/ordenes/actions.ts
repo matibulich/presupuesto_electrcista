@@ -205,13 +205,18 @@ export async function updateWorkOrder(
 }
 
 export async function deleteWorkOrder(id: string) {
+  if (!id || typeof id !== "string") {
+    console.error("ID inválido para eliminar:", id);
+    return { success: false, error: "ID de orden no válido." };
+  }
+
   try {
     await prisma.workOrder.delete({
       where: { id },
     });
     return { success: true };
   } catch (error) {
-    console.error("Error eliminando orden:", error);
+    console.error("Error eliminando orden (id:", id, "):", error);
     return {
       success: false,
       error: "No se pudo eliminar la orden.",
