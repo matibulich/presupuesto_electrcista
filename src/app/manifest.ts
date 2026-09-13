@@ -5,6 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Órdenes de Trabajo",
     short_name: "OT",
     description: "Gestión de órdenes de trabajo",
+    scope: "/",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

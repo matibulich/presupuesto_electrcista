@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { clsx } from "clsx";
+import { useMobileNav } from "./MobileNavContext";
 
 const navigation = [
   {
@@ -23,9 +25,17 @@ const navigation = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { open, setOpen } = useMobileNav();
 
   return (
-    <aside className="hidden h-screen w-64 shrink-0 md:flex md:flex-col backdrop-blur-xl bg-gradient-to-b from-white/50 to-white/30 border-r border-white/20 shadow-[0_8px_32px_0_rgba(30,41,59,0.08)]">
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      <aside className={clsx("fixed inset-y-0 left-0 z-40 h-screen w-64 shrink-0 backdrop-blur-xl bg-gradient-to-b from-white/50 to-white/30 border-r border-white/20 shadow-[0_8px_32px_0_rgba(30,41,59,0.08)] transition-transform duration-300 ease-in-out md:static md:h-auto md:translate-x-0 md:flex md:flex-col", open ? "translate-x-0 flex flex-col" : "-translate-x-full")}>
       {/* Logo */}
         <div className="flex h-16 items-center border-b border-white/20 px-6 backdrop-blur-sm">
           <div>
@@ -51,6 +61,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setOpen(false)}
               className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
                   ? "bg-primary text-primary-foreground"
@@ -87,5 +98,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
