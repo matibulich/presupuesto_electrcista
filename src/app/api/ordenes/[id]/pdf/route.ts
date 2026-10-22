@@ -34,7 +34,9 @@ export async function GET(
       ...order,
       materials: order.materials.map((material) => ({
         ...material,
+        quantity: material.quantity != null ? material.quantity : "",
         unit: material.unit ?? "",
+        price: material.price ?? null,
       })),
     };
 

@@ -257,7 +257,6 @@ export default function WorkOrderForm({
             </label>
             <Input
               {...register("budget", {
-                valueAsNumber: true,
                 setValueAs: (value) => {
                   if (value === "" || value === undefined || value === null) return undefined;
                   const num = Number(value);
@@ -415,7 +414,6 @@ export default function WorkOrderForm({
                   <Input
                     {...register(
                       `materials.${index}.price`, {
-                        valueAsNumber: true,
                         setValueAs: (value) => {
                           if (value === "" || value === undefined || value === null) return undefined;
                           const num = Number(value);

@@ -46,7 +46,7 @@ export default async function EditOrderPage({
 
     materials: order.materials.map((material) => ({
       description: material.description,
-      quantity: String(material.quantity),
+      quantity: material.quantity != null ? String(material.quantity) : "",
       unit: material.unit ?? "",
       price: material.price ?? undefined,
     })),

@@ -30,8 +30,8 @@ export const workOrderSchema = z.object({
     .number()
     .optional()
     .refine(
-      (val) => val === undefined || val >= 0,
-      "El precio debe ser mayor o igual a 0"
+      (val) => val === undefined || val === null || (!isNaN(val) && val >= 0),
+      "El presupuesto debe ser mayor o igual a 0"
     ),
 
   priority: z.enum(["NORMAL", "URGENT"]),
@@ -39,33 +39,13 @@ export const workOrderSchema = z.object({
   materials: z
     .array(
       z.object({
-        description: z
-          .string()
-          .min(1, "Escribí al menos un carácter"),
+        description: z.string().optional(),
 
-        quantity: z
-          .string()
-          .optional()
-          .refine(
-            (value) => value === undefined || value === "" || /^\d+$/.test(value),
-            "La cantidad debe ser un número"
-          )
-          .refine(
-            (value) => value === undefined || value === "" || Number(value) > 0,
-            "La cantidad debe ser mayor a 0"
-          ),
+        quantity: z.string().optional(),
 
-        price: z
-          .number()
-          .optional()
-          .refine(
-            (val) => val === undefined || val >= 0,
-            "El presupuesto debe ser mayor o igual a 0"
-          ),
+        price: z.number().optional(),
 
-        unit: z
-          .string()
-          .optional(),
+        unit: z.string().optional(),
       })
     )
     .optional(),
