@@ -507,7 +507,7 @@ export default function WorkOrderPDF({ order }: WorkOrderPDFProps) {
                 </Text>
               </View>
             ) : (
-              <Text style={styles.cardValueNormal}>Presupuesto no definido.</Text>
+              <Text style={styles.cardValueNormal}>PRESUPUESTO NO DEFINIDO</Text>
             )}
           </View>
         </View>

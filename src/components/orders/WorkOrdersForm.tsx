@@ -256,7 +256,14 @@ export default function WorkOrderForm({
               Presupuesto (opcional)
             </label>
             <Input
-              {...register("budget", { valueAsNumber: true })}
+              {...register("budget", {
+                valueAsNumber: true,
+                setValueAs: (value) => {
+                  if (value === "" || value === undefined || value === null) return undefined;
+                  const num = Number(value);
+                  return isNaN(num) ? undefined : num;
+                },
+              })}
               type="number"
               step="0.01"
               min="0"
@@ -407,7 +414,14 @@ export default function WorkOrderForm({
                 <div>
                   <Input
                     {...register(
-                      `materials.${index}.price`, { valueAsNumber: true }
+                      `materials.${index}.price`, {
+                        valueAsNumber: true,
+                        setValueAs: (value) => {
+                          if (value === "" || value === undefined || value === null) return undefined;
+                          const num = Number(value);
+                          return isNaN(num) ? undefined : num;
+                        },
+                      }
                     )}
                     type="number"
                     step="0.01"

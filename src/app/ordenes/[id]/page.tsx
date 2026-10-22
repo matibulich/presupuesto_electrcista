@@ -166,7 +166,7 @@ export default async function OrderDetailPage({
                     return (
                       <div>
                         <p className="text-sm text-muted-foreground">Presupuesto</p>
-                        <p className="mt-1 font-medium">Presupuesto no definido</p>
+                        <p className="mt-1 font-medium">PRESUPUESTO NO DEFINIDO</p>
                       </div>
                     );
                   })()}
