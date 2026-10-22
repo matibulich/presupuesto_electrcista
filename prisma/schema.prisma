@@ -71,7 +71,7 @@ model WorkOrderMaterial {
   workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
 
   description String
-  quantity    Int
+  quantity    Int?
   unit       String?
   price      Float?
 

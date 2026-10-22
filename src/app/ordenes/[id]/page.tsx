@@ -140,30 +140,36 @@ export default async function OrderDetailPage({
                   </p>
                 </div>
 
-                {order.budget !== null && order.budget !== undefined && (
-                  (() => {
+                {(() => {
                     const materialsTotal = order.materials.reduce((sum, material) => {
                       if (material.price !== null && material.price !== undefined) {
                         return sum + Number(material.price);
                       }
                       return sum;
                     }, 0);
-                    const total = order.budget! + materialsTotal;
+                    if (order.budget !== null && order.budget !== undefined) {
+                      const total = order.budget + materialsTotal;
+                      return (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Presupuesto</p>
+                          <p className="mt-1 font-medium text-lg text-emerald-600">
+                            ${total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {materialsTotal > 0 && (
+                              <span className="ml-2 text-xs text-muted-foreground font-normal">
+                                (base ${Number(order.budget).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + mat. ${materialsTotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      );
+                    }
                     return (
                       <div>
                         <p className="text-sm text-muted-foreground">Presupuesto</p>
-                        <p className="mt-1 font-medium text-lg text-emerald-600">
-                          ${total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          {materialsTotal > 0 && (
-                            <span className="ml-2 text-xs text-muted-foreground font-normal">
-                              (base ${Number(order.budget).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + mat. ${materialsTotal.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-                            </span>
-                          )}
-                        </p>
+                        <p className="mt-1 font-medium">Presupuesto no definido</p>
                       </div>
                     );
-                  })()
-                )}
+                  })()}
               </CardContent>
             </Card>
 

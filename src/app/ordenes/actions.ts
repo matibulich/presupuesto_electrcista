@@ -74,8 +74,8 @@ export async function createWorkOrder(data: WorkOrderFormData) {
           materials: {
             create: (materials || []).map((material) => ({
               description: material.description,
-              quantity: Number(material.quantity),
-              unit: material.unit,
+              quantity: material.quantity ? Number(material.quantity) : null,
+              unit: material.unit ?? null,
               price: material.price ?? null,
             })),
           },
@@ -172,8 +172,8 @@ export async function updateWorkOrder(
           materials: {
             create: (materials || []).map((material) => ({
               description: material.description,
-              quantity: Number(material.quantity),
-              unit: material.unit,
+              quantity: material.quantity ? Number(material.quantity) : null,
+              unit: material.unit ?? null,
               price: material.price ?? null,
             })),
           },

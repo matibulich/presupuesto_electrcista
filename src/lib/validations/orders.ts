@@ -45,9 +45,13 @@ export const workOrderSchema = z.object({
 
         quantity: z
           .string()
-          .regex(/^\d+$/, "La cantidad debe ser un número")
+          .optional()
           .refine(
-            (value) => Number(value) > 0,
+            (value) => value === undefined || value === "" || /^\d+$/.test(value),
+            "La cantidad debe ser un número"
+          )
+          .refine(
+            (value) => value === undefined || value === "" || Number(value) > 0,
             "La cantidad debe ser mayor a 0"
           ),
 
@@ -56,12 +60,12 @@ export const workOrderSchema = z.object({
           .optional()
           .refine(
             (val) => val === undefined || val >= 0,
-      "El presupuesto debe ser mayor o igual a 0"
+            "El presupuesto debe ser mayor o igual a 0"
           ),
 
         unit: z
           .string()
-          .min(1, "Escribí al menos un carácter"),
+          .optional(),
       })
     )
     .optional(),
