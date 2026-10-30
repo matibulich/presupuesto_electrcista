@@ -1,3 +1,4 @@
+
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -73,14 +74,15 @@ export async function createWorkOrder(data: WorkOrderFormData) {
 
           materials: {
             create: (materials || []).map((material) => ({
-              description: material.description,
-              quantity: material.quantity ? Number(material.quantity) : null,
+              description: material.description ?? "",
+              quantity: material.quantity
+                ? Number(material.quantity)
+                : null,
               unit: material.unit ?? null,
               price: material.price ?? null,
             })),
           },
         },
-
         include: {
           customer: true,
           materials: true,
@@ -106,6 +108,7 @@ export async function createWorkOrder(data: WorkOrderFormData) {
     };
   }
 }
+
 export async function updateWorkOrder(
   id: string,
   data: WorkOrderFormData
@@ -141,23 +144,26 @@ export async function updateWorkOrder(
         throw new Error("Orden no encontrada");
       }
 
+      // 1. Actualizar datos del cliente
       await tx.customer.update({
-  where: {
-    id: existingOrder.customerId,
-  },
-  data: {
-    name: customerName,
-    phone,
-    address: address || null,
-  },
-});
+        where: {
+          id: existingOrder.customerId,
+        },
+        data: {
+          name: customerName,
+          phone,
+          address: address || null,
+        },
+      });
 
+      // 2. Eliminar materiales anteriores
       await tx.workOrderMaterial.deleteMany({
         where: {
           workOrderId: id,
         },
       });
 
+      // 3. Actualizar la orden y crear los materiales nuevos
       const updatedOrder = await tx.workOrder.update({
         where: {
           id,
@@ -171,8 +177,10 @@ export async function updateWorkOrder(
 
           materials: {
             create: (materials || []).map((material) => ({
-              description: material.description,
-              quantity: material.quantity ? Number(material.quantity) : null,
+              description: material.description ?? "",
+              quantity: material.quantity
+                ? Number(material.quantity)
+                : null,
               unit: material.unit ?? null,
               price: material.price ?? null,
             })),
@@ -207,16 +215,21 @@ export async function updateWorkOrder(
 export async function deleteWorkOrder(id: string) {
   if (!id || typeof id !== "string") {
     console.error("ID inválido para eliminar:", id);
-    return { success: false, error: "ID de orden no válido." };
+    return {
+      success: false,
+      error: "ID de orden no válido.",
+    };
   }
 
   try {
     await prisma.workOrder.delete({
       where: { id },
     });
+
     return { success: true };
   } catch (error) {
     console.error("Error eliminando orden (id:", id, "):", error);
+
     return {
       success: false,
       error: "No se pudo eliminar la orden.",
