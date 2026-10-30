@@ -1,9 +1,11 @@
+import path from "path";
 import {
   Document,
   Page,
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer";
 
 const ACCENT = "#1e293b";
@@ -34,6 +36,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
+  },
+
+  logo: {
+    width: 80,
+    height: 28,
+    marginRight: 10,
   },
 
   brand: {
@@ -360,9 +368,12 @@ export default function WorkOrderPDF({ order }: WorkOrderPDFProps) {
         {/* ENCABEZADO */}
         <View style={styles.header}>
           <View style={styles.brandRow}>
-            <View style={styles.brand}>
-              <Text style={styles.brandName}>Matias Bulich</Text>
-              <Text style={styles.brandSubtitle}>Electricista · Servicio técnico</Text>
+            <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+              <Image src={path.join(process.cwd(), "public/img/Logotipo MDB Instalaciones.png")} style={styles.logo} />
+              <View style={styles.brand}>
+                <Text style={styles.brandName}>MDB INSTALACIONES</Text>
+                <Text style={styles.brandSubtitle}>DURLOCK - ELECTRICISTA</Text>
+              </View>
             </View>
             <View style={styles.headerRight}>
               <Text style={styles.otBig}>
@@ -373,7 +384,7 @@ export default function WorkOrderPDF({ order }: WorkOrderPDFProps) {
           </View>
 
           <Text style={styles.whatsappHeader}>
-            WhatsApp: 351 304 2025
+            WhatsApp: 3516351442
           </Text>
 
           <View style={styles.metaRow}>
@@ -515,10 +526,10 @@ export default function WorkOrderPDF({ order }: WorkOrderPDFProps) {
         {/* PIE */}
         <View style={styles.footer}>
           <Text style={styles.footerLeft}>
-            Matias Bulich — Electricista
+            MDB Instalaciones · Durlock - Electricista
           </Text>
           <Text style={styles.footerRight}>
-            OT #{order.number.toString().padStart(5, "0")} · WhatsApp 351 304 2025
+            OT #{order.number.toString().padStart(5, "0")} · WhatsApp 3516351442
           </Text>
         </View>
       </Page>

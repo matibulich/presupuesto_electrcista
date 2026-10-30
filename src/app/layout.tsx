@@ -12,6 +12,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "OT Manager",
   description: "Gestión de órdenes de trabajo",
+};
+
+export const viewport = {
   themeColor: "#0f172a",
 };
 
